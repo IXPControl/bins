@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked stop_zerotier Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml down zerotier
+echo "`date -u` IXPControl ZeroTier Interface Stopped" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

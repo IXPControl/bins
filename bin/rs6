@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "`date -u` Invoked ROUTESERVER6 Manual Commands Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker exec routeserver bird6c

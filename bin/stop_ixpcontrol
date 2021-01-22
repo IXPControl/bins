@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked Stop_IXPControl Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml down
+echo "`date -u` Stop_IXPControl Stopped" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

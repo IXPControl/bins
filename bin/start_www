@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked start_www Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml up ixpcontrol -d
+echo "`date -u` IXPControl Web Interface Started" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

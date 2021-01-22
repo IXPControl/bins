@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked stop_rs Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml down routeserver
+echo "`date -u` IXPControl RouteServer Stopped" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

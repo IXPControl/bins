@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked start_zerotier Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml up zerotier -d
+echo "`date -u` IXPControl ZeroTier Interface Started" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

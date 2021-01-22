@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked start_rs Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml up routeserver -d
+echo "`date -u` IXPControl RouteServer 1 Started" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

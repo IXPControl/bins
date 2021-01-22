@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked start_openvpn Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml up openvpn -d
+echo "`date -u` IXPControl OpenVPN Interface Started" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log

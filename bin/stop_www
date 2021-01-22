@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "`date -u` Invoked stop_www Command via Shell" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
+docker-compose -f /opt/ixpcontrol/docker-compose.yml down ixpcontrol
+echo "`date -u` IXPControl Web Interface Stopped" >> /opt/ixpcontrol/logs/ixpcontrol/shell.log
