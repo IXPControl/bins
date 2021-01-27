@@ -49,11 +49,11 @@ case "$option" in
                         1)
                                 read -p "Neighbor Address:  "  peer4Address
                                 echo "Setting $peer4Address"
-                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN ]]; then
-                                          mkdir /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN
+                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+                                          mkdir /opt/ixpcontrol/data/routeserver/PEERS/$peerASN
                                         fi 
 
-cat >> /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/peer.conf <<EOL
+cat >> /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v4.conf <<EOL
 protocol bgp PEER_AS$peerASN from ix_peer
 {
 	neighbor	as $peerASN;
@@ -81,11 +81,11 @@ EOL
                         2)
                                 read -p "Neighbor Address:  "  peer6Address
                                 echo "Setting $peer4Address"
-                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN ]]; then
-                                          mkdir /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN
+                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+                                          mkdir /opt/ixpcontrol/data/routeserver/PEERS/$peerASN
                                         fi 
 
-cat >> /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/peer.conf <<EOL
+cat >> /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v6.conf <<EOL
 protocol bgp PEER_AS$peerASN from ix_peer
 {
 	neighbor	as $peerASN;
@@ -115,13 +115,13 @@ EOL
                                 echo "Setting $peer4Address"
 								read -p "IPv6 Neighbor Address:  "  peer6Address
                                 echo "Setting $peer6Address"
-                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN ]]; then
-                                          mkdir /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN
+                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+                                          mkdir /opt/ixpcontrol/data/routeserver/PEERS/$peerASN
                                         fi 
-                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN ]]; then
-                                          mkdir /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN
+                                        if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+                                          mkdir /opt/ixpcontrol/data/routeserver/PEERS/$peerASN
                                         fi 
-cat >> /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/peer.conf <<EOL
+cat >> /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v4.conf <<EOL
 protocol bgp PEER_AS$peerASN from ix_peer
 {
 	neighbor	as $peerASN;
@@ -143,7 +143,7 @@ protocol bgp PEER_AS$peerASN from ix_peer
 	};
 }
 EOL
-cat >> /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/peer.conf <<EOL
+cat >> /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v6.conf <<EOL
 protocol bgp PEER_AS$peerASN from ix_peer
 {
 	neighbor	as $peerASN;
@@ -172,40 +172,37 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 read -p "What is the AS-SET?:  "  peerASSET
 echo "Setting $peerASSET"
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN ]]; then
-    echo $peerASSET > /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/AS-SET
-fi
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN ]]; then
-    echo $peerASSET > /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/AS-SET
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+    echo $peerASSET > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET
 fi
 fi
 echo "Creating Prefix List"
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/AS-SET ]]; then
-	peerAS=$(cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/AS-SET)
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
+	peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
     echo "IPv4 AS-SET has been found, Searching Prefixes IPv4 via AS-SET"
-docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/prefix_v4.conf
+docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
 else
 echo "No IPv4 AS-SET has been found, Looking up IRR Prefixes by ASN"
-docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/prefix_v4.conf
+docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
 fi
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/AS-SET ]]; then
-        peerAS=$(cat /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/AS-SET)
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
+        peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
     echo "IPv6 AS-SET has been found, Searching Prefixes IPv6 via AS-SET"
-docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/prefix_v6.conf
+docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
 else
 echo "No IPv6 AS-SET has been found, Looking up IRR Prefixes by ASN"
-docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/prefix_v6.conf
+docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
 fi
 echo "Completed IRR Lookup"
 echo "Prefix Lists Generated"
-cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN/prefix_v4.conf /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN/prefix_v6.conf 2>/dev/null
+cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf 2>/dev/null
 echo ""
 echo ""
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN ]]; then
+if [[ -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
 echo "Reconfiguring Bird4"
 docker exec RouteServer birdc configure soft;
 fi
-if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN ]]; then
+if [[ -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
 echo "Reconfiguring Bird6"
 docker exec RouteServer bird6c configure soft;
 fi
@@ -224,10 +221,10 @@ echo ""
                                echo "Invalid ASN Provided, Please Use NUMBERS Only. - Exiting. Please Retry."
                                exit
                         fi
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN ]]; then
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v4.conf ]]; then
 						echo "IPv4 Session Found"
 						fi
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN ]]; then
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/peer_v6.conf ]]; then
 						echo "IPv6 Session Found"
 						fi
                         echo "Remove $peerASN from:"
@@ -242,27 +239,27 @@ echo ""
                         case "$stackOption" in
 						
 						1)
-							mv /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/v4/PEERS/$peerASN
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/v4/PEERS/$peerASN ]]; then
+							mv /opt/ixpcontrol/data/routeserver/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN ]]; then
 							echo "Reconfiguring Bird4"
 							docker exec RouteServer birdc configure soft;
 						fi
 						;;
 						2)
-							mv /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/v6/PEERS/$peerASN
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/v6/PEERS/$peerASN ]]; then
+							mv /opt/ixpcontrol/data/routeserver/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN ]]; then
 							echo "Reconfiguring Bird6"
 							docker exec RouteServer bird6c configure soft;
 						fi
 						;;
 						3)
-							mv /opt/ixpcontrol/data/routeserver/v4/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/v4/PEERS/$peerASN
-							mv /opt/ixpcontrol/data/routeserver/v6/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/v6/PEERS/$peerASN
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/v4/PEERS/$peerASN ]]; then
+							mv /opt/ixpcontrol/data/routeserver/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN
+							mv /opt/ixpcontrol/data/routeserver/PEERS/$peerASN /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN ]]; then
 							echo "Reconfiguring Bird4"
 							docker exec RouteServer birdc configure soft;
 						fi
-						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/v6/PEERS/$peerASN ]]; then
+						if [[ ! -e /opt/ixpcontrol/data/routeserver/DISABLED/PEERS/$peerASN ]]; then
 							echo "Reconfiguring Bird6"
 							docker exec RouteServer bird6c configure soft; 
 						fi
@@ -276,46 +273,46 @@ echo ""
 		
 		3)
 			echo "Fetching IRR Lists, This may take a while.."
-cd /etc/bird/routeserver/v4/PEERS;
+cd /etc/bird/routeserver/PEERS;
 for v4ASN in *; do
     if [ -d "$v4ASN" ]; then
 		echo "Found ASN: $v4ASN"
-		if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$v4ASN/AS-SET ]]; then
-			peerAS=$(cat /opt/ixpcontrol/data/routeserver/v6/PEERS/$v4ASN/AS-SET)
+		if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/AS-SET ]]; then
+			peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/AS-SET)
 				echo "AS-SET Present for ASN: $v4ASN - AS-SET: $peerAS"
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/v4/PEERS/$v4ASN/prefix_v4.conf
+			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			echo "ASN: $v4ASN using $peerAS Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$v4ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			sleep 2
 		else
 			echo "NO AS-SET Found for $v4ASN, Using ASN Only."
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v4ASN > /opt/ixpcontrol/data/routeserver/v4/PEERS/$v4ASN/prefix_v4.conf
+			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v4ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			echo "ASN: $v4ASN using ASv4ASN Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$v4ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			sleep 2
 		fi
     fi
 done
-cd /etc/bird/routeserver/v6/PEERS;
+cd /etc/bird/routeserver/PEERS;
 for v6ASN in *; do
     if [ -d "$v6ASN" ]; then
 		echo "Found ASN: $v6ASN"
-		if [[ ! -e /opt/ixpcontrol/data/routeserver/v4/PEERS/$v6ASN/AS-SET ]]; then
-			peerAS=$(cat /opt/ixpcontrol/data/routeserver/v6/PEERS/$v6ASN/AS-SET)
+		if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/AS-SET ]]; then
+			peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/AS-SET)
 				echo "AS-SET Present for ASN: $v6ASN - AS-SET: $peerAS"
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/v6/PEERS/$v6ASN/prefix_v4.conf
+			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
 			echo "ASN: $v6ASN using $peerAS Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$v6ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
 			sleep 2
 		else
 			echo "NO AS-SET Found for $v6ASN, Using ASN Only."
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v6ASN > /opt/ixpcontrol/data/routeserver/v6/PEERS/$v6ASN/prefix_v4.conf
+			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v6ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
 			echo "ASN: $v6ASN using ASv4ASN Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/v4/PEERS/$v6ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
 			sleep 2
 		fi
     fi
