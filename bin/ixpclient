@@ -75,6 +75,40 @@ protocol bgp PEER_AS$peerASN from ix_peer
 	};
 }
 EOL
+echo "Success: Created Configuration"
+read -p "Does Peer ASN have an AS-SET? (ie, AS-IXPCONTROL)  [Y/N]" -n 1 -r
+echo  ""
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+read -p "What is the AS-SET?:  "  peerASSET
+echo "Setting $peerASSET"
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+    echo $peerASSET > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET
+fi
+fi
+echo "Creating Prefix List"
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
+        peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
+    echo "IPv4 AS-SET has been found, Searching Prefixes IPv4 via AS-SET"
+docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
+else
+echo "No IPv4 AS-SET has been found, Looking up IRR Prefixes by ASN"
+docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
+fi
+if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
+        peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
+    echo "IPv6 AS-SET has been found, Searching Prefixes IPv6 via AS-SET"
+docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
+else
+echo "No IPv6 AS-SET has been found, Looking up IRR Prefixes by ASN"
+docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
+fi
+echo "Completed IRR Lookup"
+echo "Prefix Lists Generated"
+cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf 2>/dev/null
+
+
+
 			exit
                         ;;
 						
@@ -180,18 +214,18 @@ echo "Creating Prefix List"
 if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
 	peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
     echo "IPv4 AS-SET has been found, Searching Prefixes IPv4 via AS-SET"
-docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
+docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
 else
 echo "No IPv4 AS-SET has been found, Looking up IRR Prefixes by ASN"
-docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
+docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v4.conf
 fi
 if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET ]]; then
         peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET)
     echo "IPv6 AS-SET has been found, Searching Prefixes IPv6 via AS-SET"
-docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
+docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
 else
 echo "No IPv6 AS-SET has been found, Looking up IRR Prefixes by ASN"
-docker exec bgpq4.rs bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
+docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$peerASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$peerASN > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/prefix_v6.conf
 fi
 echo "Completed IRR Lookup"
 echo "Prefix Lists Generated"
@@ -273,21 +307,21 @@ echo ""
 		
 		3)
 			echo "Fetching IRR Lists, This may take a while.."
-cd /etc/bird/routeserver/PEERS;
+cd /opt/ixpcontrol/data/routeserver/PEERS;
 for v4ASN in *; do
     if [ -d "$v4ASN" ]; then
 		echo "Found ASN: $v4ASN"
-		if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/AS-SET ]]; then
+		if [[ -e /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/AS-SET ]]; then
 			peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/AS-SET)
 				echo "AS-SET Present for ASN: $v4ASN - AS-SET: $peerAS"
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
+			docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			echo "ASN: $v4ASN using $peerAS Complete"
 			echo "Prefix List"
 			cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			sleep 2
 		else
 			echo "NO AS-SET Found for $v4ASN, Using ASN Only."
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v4ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
+			docker exec BGPQ4.RS bgpq4 -bl "define PREFIX_AS$v4ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v4ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
 			echo "ASN: $v4ASN using ASv4ASN Complete"
 			echo "Prefix List"
 			cat /opt/ixpcontrol/data/routeserver/PEERS/$v4ASN/prefix_v4.conf
@@ -295,24 +329,24 @@ for v4ASN in *; do
 		fi
     fi
 done
-cd /etc/bird/routeserver/PEERS;
+cd /opt/ixpcontrol/data/routeserver/PEERS;
 for v6ASN in *; do
     if [ -d "$v6ASN" ]; then
 		echo "Found ASN: $v6ASN"
-		if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/AS-SET ]]; then
+		if [[ -e /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/AS-SET ]]; then
 			peerAS=$(cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/AS-SET)
 				echo "AS-SET Present for ASN: $v6ASN - AS-SET: $peerAS"
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
+			docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR $peerAS > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v6.conf
 			echo "ASN: $v6ASN using $peerAS Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v6.conf
 			sleep 2
 		else
 			echo "NO AS-SET Found for $v6ASN, Using ASN Only."
-			docker exec bgpq4.rs bgpq4 -bl "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v6ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
-			echo "ASN: $v6ASN using ASv4ASN Complete"
+			docker exec BGPQ4.RS bgpq4 -b6l "define PREFIX_AS$v6ASN" -S NTTCOM,RADB,RIPE,ALTDB,BELL,LEVEL3,RGNET,APNIC,JPIRR,ARIN,BBOI,TC,AFRINIC,ARIN-WHOIS,REGISTROBR AS$v6ASN > /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v6.conf
+			echo "ASN: $v6ASN using AS$v6ASN Complete"
 			echo "Prefix List"
-			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v4.conf
+			cat /opt/ixpcontrol/data/routeserver/PEERS/$v6ASN/prefix_v6.conf
 			sleep 2
 		fi
     fi
