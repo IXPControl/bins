@@ -2,5 +2,10 @@
 echo "Joining Master Server $1"
 UUIDSet=$(cat /opt/ixpcontrol/data/www.api/key/api.key)
 
+iptables -I DOCKER_MASTER -s $1 -p tcp --dport 9099 -j ACCEPT
+iptables -I DOCKER_MASTER -s 127.0.0.1 -p tcp --dport 9099 -j ACCEPT
+iptables -I DOCKER_MASTER -p tcp --dport 9099 -j REJECT --reject-with icmp-port-unreachable
+iptables save
+
 req=$(curl -s -X GET "http://$1:9919/join/slave/" -H "Accept: application/json") 2>&1
 echo "${req}"
