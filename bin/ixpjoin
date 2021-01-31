@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "Joining Master Server $1"
+UUIDSet=$(cat /opt/ixpcontrol/data/www.api/key/api.key)
+
+req=$(curl -s -X GET "http://$1:9919/join/slave/" -H "Accept: application/json") 2>&1
+echo "${req}"
