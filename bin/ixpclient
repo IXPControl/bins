@@ -30,6 +30,16 @@ case "$option" in
                 echo "Setting $peerName"
                 read -p "Peer ASN: (NUMBERS ONLY)"  peerASN
                 echo "Setting $peerASN"
+		read -p "Does Peer ASN have an AS-SET? (ie, AS-IXPCONTROL)  [Y/N]" -n 1 -r
+		echo  ""
+	if [[ $REPLY =~ ^[Yy]$ ]]
+		then
+		read -p "What is the AS-SET?:  "  peerASSET
+		echo "Setting $peerASSET"
+	if [[ ! -e /opt/ixpcontrol/data/routeserver/PEERS/$peerASN ]]; then
+  		echo $peerASSET > /opt/ixpcontrol/data/routeserver/PEERS/$peerASN/AS-SET
+		fi
+	fi
                         if ! [[ "$peerASN" =~ ^[0-9]+$ ]]
                           then
                                echo "Invalid ASN Provided, Please Use NUMBERS Only. - Exiting. Please Retry."
